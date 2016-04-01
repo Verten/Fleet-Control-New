@@ -1,0 +1,11 @@
+#app .commentPage_content .comment_button {
+  width: 100px;
+  height: 40px;
+  font-size: 0.8em;
+  margin: 16px auto; }
+#app .commentPage_header {
+  width: 100%;
+  font-size: 1.4em;
+  text-align: center; }
+
+/*# sourceMappingURL=Comment.css.map */

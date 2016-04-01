@@ -1,0 +1,118 @@
+.info_panel > div{
+  margin:8px 0px;
+}
+
+.trip_detail_panel, .sensors_detail_panel, .vehicle_driver{
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.vehicle_panel, .driver_panel{
+  width:48%;
+  display: inline-block;
+  padding:14px;
+  .panel_content{
+    width:80%;
+    margin-left:24px;
+    & > div{
+      margin:8px 0px;
+    }
+  }
+}
+
+.panel_content{
+  margin-left:24px;
+  input{
+    width: 170px;
+    height: 25px;
+    border: 1px solid rgb(1, 130, 186);
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 0px 0px 0px 8px;
+    font-size: 1rem;
+    text-align: left;
+  }
+}
+
+.pickup_panel, .dropdown_panel, .addition_panel{
+  flex:1;
+  display: inline-block;
+  padding: 0px 14px;
+  min-height:131px;
+  .panel_content{
+    margin-left:24px;
+    & > div{
+      margin:8px 0px;
+    }
+  }
+  .info_panel{
+    min-height:115px;
+  }
+}
+.map_panel, .detail_panel, .event_panel{
+  padding:14px;
+}
+
+.sensors_detail_panel{
+  .info_panel{
+    width:45%;
+    display: inline-block;
+    padding: 0px 14px;
+  }
+}
+
+.map_panel{
+  height:250px;
+}
+.event_panel{
+  height:100px;
+  overflow: auto;
+}
+.panel_title{
+  font-size: 1.25rem;
+  font-weight:700;
+}
+.bold_title{
+  font-weight: 700;
+  span:first-child{
+    width: 100px;
+    display: inline-block;
+    text-align: right;
+  }
+}
+.sensor_panel{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  & > div{
+    width:48%;
+  }
+  .sensor_temperature_panel, .sensor_humidity_panel{
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+  }
+  .current_temperature, .current_humidity{
+    font-size:2em;
+    display: inline-block;
+  }
+  .current_temperature{
+    color:rgb(236, 121, 115);
+  }
+  .current_humidity{
+    color: rgb(159, 194, 108);
+  }
+  .sensor_humidity, .sensor_temperature{
+    display: inline-block;
+    & > div{
+      display: inline-block;
+      margin-left: 20px;
+      width:40px;
+      height:40px;
+      background-color: rgb(0, 175, 243);
+      color: #ffffff;
+    }
+  }
+}

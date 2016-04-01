@@ -1,0 +1,97 @@
+.info_panel > div {
+  margin: 8px 0px; }
+
+.trip_detail_panel, .sensors_detail_panel, .vehicle_driver {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start; }
+
+.vehicle_panel, .driver_panel {
+  width: 48%;
+  display: inline-block;
+  padding: 14px; }
+  .vehicle_panel .panel_content, .driver_panel .panel_content {
+    width: 80%;
+    margin-left: 24px; }
+    .vehicle_panel .panel_content > div, .driver_panel .panel_content > div {
+      margin: 8px 0px; }
+
+.panel_content {
+  margin-left: 24px; }
+  .panel_content input {
+    width: 170px;
+    height: 25px;
+    border: 1px solid #0182ba;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    padding: 0px 0px 0px 8px;
+    font-size: 1rem;
+    text-align: left; }
+
+.pickup_panel, .dropdown_panel, .addition_panel {
+  flex: 1;
+  display: inline-block;
+  padding: 0px 14px;
+  min-height: 131px; }
+  .pickup_panel .panel_content, .dropdown_panel .panel_content, .addition_panel .panel_content {
+    margin-left: 24px; }
+    .pickup_panel .panel_content > div, .dropdown_panel .panel_content > div, .addition_panel .panel_content > div {
+      margin: 8px 0px; }
+  .pickup_panel .info_panel, .dropdown_panel .info_panel, .addition_panel .info_panel {
+    min-height: 115px; }
+
+.map_panel, .detail_panel, .event_panel {
+  padding: 14px; }
+
+.sensors_detail_panel .info_panel {
+  width: 45%;
+  display: inline-block;
+  padding: 0px 14px; }
+
+.map_panel {
+  height: 250px; }
+
+.event_panel {
+  height: 100px;
+  overflow: auto; }
+
+.panel_title {
+  font-size: 1.25rem;
+  font-weight: 700; }
+
+.bold_title {
+  font-weight: 700; }
+  .bold_title span:first-child {
+    width: 100px;
+    display: inline-block;
+    text-align: right; }
+
+.sensor_panel {
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+  .sensor_panel > div {
+    width: 48%; }
+  .sensor_panel .sensor_temperature_panel, .sensor_panel .sensor_humidity_panel {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center; }
+  .sensor_panel .current_temperature, .sensor_panel .current_humidity {
+    font-size: 2em;
+    display: inline-block; }
+  .sensor_panel .current_temperature {
+    color: #ec7973; }
+  .sensor_panel .current_humidity {
+    color: #9fc26c; }
+  .sensor_panel .sensor_humidity, .sensor_panel .sensor_temperature {
+    display: inline-block; }
+    .sensor_panel .sensor_humidity > div, .sensor_panel .sensor_temperature > div {
+      display: inline-block;
+      margin-left: 20px;
+      width: 40px;
+      height: 40px;
+      background-color: #00aff3;
+      color: #ffffff; }
+
+/*# sourceMappingURL=Dashboard.css.map */

@@ -1,0 +1,58 @@
+.slider {
+  width: 80%;
+  height: 40px; }
+  .slider .bar {
+    position: relative;
+    background: #ddd;
+    height: 10px;
+    top: 15px; }
+  .slider .bar-1 {
+    border-top-left-radius: 5px;
+    border-bottom-left-radius: 5px; }
+  .slider .bar-1, .slider .bar-2 {
+    background: dodgerblue; }
+  .slider .handle {
+    width: 40px;
+    height: 40px;
+    -webkit-border-radius: 20px;
+    -moz-border-radius: 20px;
+    border-radius: 20px;
+    font-size: 0.9em;
+    text-align: center;
+    background-color: deepskyblue;
+    color: white;
+    cursor: pointer; }
+  .slider .my-handle1 {
+    font-size: 1.2em;
+    text-align: center;
+    margin-top: 10px;
+    margin-left: 10px; }
+  .slider .my-handle2 {
+    font-size: 1.2em;
+    text-align: center;
+    margin-top: 10px; }
+
+#app select {
+  width: 100px;
+  height: 25px;
+  border: 1px solid #0182ba;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  padding-left: 8px;
+  font-size: 1rem;
+  text-align: left; }
+
+.quantity_div .input_text {
+  margin-right: 8px; }
+.quantity_div .input_text, .quantity_div select {
+  width: 50px; }
+
+.submit_panel {
+  position: absolute;
+  top: -80px;
+  right: 170px; }
+  .submit_panel .button_create {
+    height: 45px; }
+
+/*# sourceMappingURL=CreatePage.css.map */

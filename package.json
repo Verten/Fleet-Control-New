@@ -1,0 +1,56 @@
+{
+  "name": "getting-start-react",
+  "version": "1.0.0",
+  "description": "for my studying react",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --display-error-details -p",
+    "dev": "webpack-dev-server --devtool eval --progress --colors --hot --content-base build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Verten/getting-start-react.git"
+  },
+  "keywords": [
+    "react"
+  ],
+  "author": "verten",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Verten/getting-start-react/issues"
+  },
+  "homepage": "https://github.com/Verten/getting-start-react#readme",
+  "devDependencies": {
+    "babel-core": "^6.5.2",
+    "babel-loader": "^6.2.3",
+    "babel-plugin-transform-decorators-legacy": "^1.3.4",
+    "babel-preset-es2015": "^6.5.0",
+    "babel-preset-react": "^6.5.0",
+    "babel-preset-stage-0": "^6.5.0",
+    "css-loader": "^0.23.1",
+    "node-sass": "^3.4.2",
+    "sass-loader": "^3.1.2",
+    "style-loader": "^0.13.0",
+    "webpack": "^1.12.14"
+  },
+  "dependencies": {
+    "alt": "^0.18.2",
+    "alt-utils": "^1.0.0",
+    "babel-preset-react": "^6.5.0",
+    "eslint": "^2.2.0",
+    "extract-text-webpack-plugin": "^1.0.1",
+    "history": "^2.0.1",
+    "jsx-loader": "^0.13.2",
+    "react": "^0.14.7",
+    "react-datetime": "^2.1.0",
+    "react-dom": "^0.14.7",
+    "react-google-maps": "^4.9.1",
+    "react-icons": "^1.0.3",
+    "react-router": "^2.0.0",
+    "react-slider": "^0.6.1",
+    "scss-loader": "0.0.1",
+    "transfer-webpack-plugin": "^0.1.4",
+    "webpack-dev-server": "^1.14.1"
+  }
+}

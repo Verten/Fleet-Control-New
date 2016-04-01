@@ -1,0 +1,13 @@
+#app button {
+  border: 1px solid #0182ba;
+  -webkit-box-shadow: 0 0 10px #000000;
+  -moz-box-shadow: 0 0 10px #000000;
+  box-shadow: 0 0 10px #000000;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  text-align: center;
+  display: block;
+  margin: 8px auto; }
+
+/*# sourceMappingURL=Button.css.map */
