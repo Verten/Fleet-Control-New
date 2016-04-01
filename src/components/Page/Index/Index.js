@@ -29,7 +29,7 @@ export default class IndexPage extends React.Component {
         return {
             headers: headers,
             trip_info: trip_info,
-            events: EventInfoStore.getState().body,
+            events: EventInfoStore.getState().body
         }
     }
 

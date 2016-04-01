@@ -335,13 +335,13 @@ export default class DashboardPage extends React.Component {
         if (this.props.trip) {
             items.push({
                 "label": "Pick up at",
-                "value": this.props.trip.plannedStartTime,
+                "value": moment(this.props.trip.startTime).format("YYYY-MM-DD HH:mm"),
                 "type": "plannedStartTime",
                 "editable": false
             });
             items.push({
                 "label": "Drop off at",
-                "value": this.props.trip.plannedArriveTime,
+                "value": moment(this.props.trip.arriveTime).format("YYYY-MM-DD HH:mm"),
                 "type": "plannedArriveTime",
                 "editable": false
             });
