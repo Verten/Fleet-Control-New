@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
+import moment from 'moment';
 
 export default class Table extends React.Component {
     static propTypes = {
@@ -56,8 +57,49 @@ export default class Table extends React.Component {
         return keys;
     }
 
+    renderEvent(data,style){
+        let data_Line = [];
+        //let tmpEvent = {
+        //    "createDate": moment(events[i].created),
+        //    "type": events[i].type,
+        //    "message": events[i].message
+        //}
+        for(let index in data){
+            if(data[index].message == "-"){
+                continue;
+            }
+            let event_icon = "";
+            let createDate = moment(data[index].createDate).format("YYYY-MM-DD HH:mm");
+            let type = data[index].type;
+            let message = data[index].message;
+            if(data[index].type.toLowerCase() == "info"){
+                event_icon = <img className="small_event_image" src="../../images/icon_info-01.svg" alt="info"/>;
+            }else if(data[index].type.toLowerCase() == "warning"){
+                event_icon = <img className="small_event_image" src="../../images/icon_warning-01.svg" alt="warning"/>;
+            }
+            data_Line.push(
+                <tr key={index} className={style} >
+                    <td onClick={this.props.clickFunction.bind(this,data.type)} key="time">
+                        {createDate}
+                    </td>
+                    <td className="event_panel_image" onClick={this.props.clickFunction.bind(this,data.type)} key="event">
+                        {event_icon}{type}
+                    </td>
+                    <td onClick={this.props.clickFunction.bind(this,data.type)} key="message">
+                        {message}
+                    </td>
+                </tr>
+            );
+        }
+
+        return data_Line;
+    }
+
     expandData(data){
         let data_Line = [];
+        if(!data){
+            return data_Line;
+        }
         if(data.operation){
             for(let index in data){
                 if(index == "id" || index == "operation"){
@@ -67,19 +109,23 @@ export default class Table extends React.Component {
                 let event_icon = <label></label>;
                 if(index =="event" && data.event){
                     content = data.event[0].message;
-                    for(let j in data.event){
-                        if(data.event[j].type == "normal"){
-                            event_icon = <img src=""/>
-                        }else if(data.event[j].type == "warning"){
-                            event_icon = <img src=""/>
-                        }
+                    if(data.event[0].type == "normal"){
+                        event_icon = <img src=""/>
+                    }else if(data.event[0].type == "warning"){
+                        event_icon = <img className="small_event_image" src="../../images/icon_warning-01.svg" alt="warning"/>
                     }
+                    data_Line.push(
+                        <td className="event_panel_image" onClick={this.props.clickFunction.bind(this,data.id)} key={"event"+index}>
+                            {event_icon}{content}
+                        </td>
+                    );
+                }else{
+                    data_Line.push(
+                        <td onClick={this.props.clickFunction.bind(this,data.id)} key={index}>
+                            {event_icon}{content}
+                        </td>
+                    );
                 }
-                data_Line.push(
-                    <td onClick={this.props.clickFunction.bind(this,data.id)} key={index}>
-                        {event_icon}{content}
-                    </td>
-                );
             }
             //add operation
             data_Line.push(
@@ -95,18 +141,18 @@ export default class Table extends React.Component {
                 }
                 let content = data[index];
                 let event_icon = <label></label>;
-                if(index =="event" && data.event){
-                    content = data.event[0].message;
-                    for(let j in data.event){
-                        if(data.event[j].type == "normal"){
-                            event_icon = <img src=""/>
-                        }else if(data.event[j].type == "warning"){
-                            event_icon = <img src=""/>
-                        }
-                    }
-                }
+                //if(index =="event" && data.event){
+                //    content = data.event.message;
+                //    for(let j in data.event){
+                //        if(data.event[j].type == "normal"){
+                //            event_icon = <img src=""/>
+                //        }else if(data.event[j].type == "warning"){
+                //            event_icon = <img src=""/>
+                //        }
+                //    }
+                //}
                 data_Line.push(
-                    <td onClick={this.props.clickFunction.bind(this,data.id)} key={index}>
+                    <td onClick={this.props.clickFunction.bind(this,data)} key={index}>
                         {event_icon}{content}
                     </td>
                 );
@@ -118,6 +164,10 @@ export default class Table extends React.Component {
     renderData(){
         let data = this.props.data;
         let data_Item = [];
+        console.log(data);
+        if(this.props.data.length == 0){
+            return data_Item;
+        }
         if(data == null || data == undefined || data.length == 0){
             return data_Item;
         }else{
@@ -128,11 +178,18 @@ export default class Table extends React.Component {
                 }else{
                     style = "odd";
                 }
-                data_Item.push(
-                    <tr key={index} className={style} >
-                        {this.expandData(data[index])}
-                    </tr>
-                );
+
+                if(this.props.tableType == "event"){//render event table //data[index].event && data.length <= 1
+                    data_Item.push(
+                        this.renderEvent(data[index].event,style)
+                    );
+                }else{
+                    data_Item.push(
+                        <tr key={index} className={style} >
+                            {this.expandData(data[index])}
+                        </tr>
+                    );
+                }
             }
         }
         return data_Item;

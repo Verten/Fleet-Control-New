@@ -29,15 +29,18 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-0": "^6.5.0",
     "css-loader": "^0.23.1",
+    "file-loader": "^0.8.5",
     "node-sass": "^3.4.2",
     "sass-loader": "^3.1.2",
     "style-loader": "^0.13.0",
+    "url-loader": "^0.5.7",
     "webpack": "^1.12.14"
   },
   "dependencies": {
     "alt": "^0.18.2",
     "alt-utils": "^1.0.0",
     "babel-preset-react": "^6.5.0",
+    "can-use-dom": "^0.1.0",
     "eslint": "^2.2.0",
     "extract-text-webpack-plugin": "^1.0.1",
     "history": "^2.0.1",

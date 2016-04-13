@@ -1,10 +1,34 @@
 .info_panel > div {
   margin: 8px 0px; }
 
+#app .main_page .page #myTable thead th:nth-child(6) {
+  width: 160px; }
+
 .trip_detail_panel, .sensors_detail_panel, .vehicle_driver {
   display: flex;
   justify-content: center;
   align-items: flex-start; }
+
+.trip_detail_panel .addition_panel .info_panel .panel_content > div:first-child:after {
+  content: '';
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  right: -15px;
+  top: -15px;
+  background-image: url("../../../Asset/images/icon_locationA-01.png");
+  background-position: center;
+  background-repeat: no-repeat; }
+.trip_detail_panel .addition_panel .info_panel .panel_content > div:last-child:after {
+  content: '';
+  width: 48px;
+  height: 48px;
+  position: absolute;
+  right: -15px;
+  top: -15px;
+  background-image: url("../../../Asset/images/icon_locationB-01.png");
+  background-position: center;
+  background-repeat: no-repeat; }
 
 .vehicle_panel, .driver_panel {
   width: 48%;
@@ -18,7 +42,10 @@
 
 .panel_content {
   margin-left: 24px; }
+  .panel_content > div > div > span:last-child {
+    padding: 0px 0px 0px 8px; }
   .panel_content input {
+    margin-left: 4px;
     width: 170px;
     height: 25px;
     border: 1px solid #0182ba;
@@ -35,14 +62,27 @@
   padding: 0px 14px;
   min-height: 131px; }
   .pickup_panel .panel_content, .dropdown_panel .panel_content, .addition_panel .panel_content {
-    margin-left: 24px; }
+    margin-left: 0px; }
     .pickup_panel .panel_content > div, .dropdown_panel .panel_content > div, .addition_panel .panel_content > div {
-      margin: 8px 0px; }
+      margin: 8px 0px;
+      position: relative; }
   .pickup_panel .info_panel, .dropdown_panel .info_panel, .addition_panel .info_panel {
     min-height: 115px; }
 
 .map_panel, .detail_panel, .event_panel {
   padding: 14px; }
+
+.event_panel tr {
+  text-align: center; }
+
+.event_panel_image {
+  display: flex;
+  align-items: center;
+  justify-content: center; }
+
+img.small_event_image {
+  width: 8%;
+  float: left; }
 
 .sensors_detail_panel .info_panel {
   width: 45%;
@@ -53,8 +93,9 @@
   height: 250px; }
 
 .event_panel {
-  height: 100px;
-  overflow: auto; }
+  height: 160px;
+  overflow: auto;
+  margin-top: 32px; }
 
 .panel_title {
   font-size: 1.25rem;
@@ -76,22 +117,46 @@
   .sensor_panel .sensor_temperature_panel, .sensor_panel .sensor_humidity_panel {
     display: flex;
     align-items: flex-start;
-    justify-content: center; }
+    justify-content: center;
+    position: relative; }
   .sensor_panel .current_temperature, .sensor_panel .current_humidity {
     font-size: 2em;
-    display: inline-block; }
+    line-height: 40px; }
   .sensor_panel .current_temperature {
     color: #ec7973; }
   .sensor_panel .current_humidity {
     color: #9fc26c; }
+  .sensor_panel .sensor_min_label, .sensor_panel .sensor_set_label, .sensor_panel .sensor_max_label {
+    color: #929292 !important;
+    font-size: 10pt;
+    margin-left: 1px !important;
+    width: 40px !important;
+    height: auto !important; }
   .sensor_panel .sensor_humidity, .sensor_panel .sensor_temperature {
-    display: inline-block; }
+    display: inline-block;
+    width: 60%; }
     .sensor_panel .sensor_humidity > div, .sensor_panel .sensor_temperature > div {
+      position: relative;
       display: inline-block;
       margin-left: 20px;
       width: 40px;
       height: 40px;
-      background-color: #00aff3;
-      color: #ffffff; }
+      color: #ffffff;
+      background-color: transparent; }
+      .sensor_panel .sensor_humidity > div img, .sensor_panel .sensor_temperature > div img {
+        position: absolute;
+        top: -5px;
+        width: 60px; }
+    .sensor_panel .sensor_humidity .sensor_min > span, .sensor_panel .sensor_humidity .sensor_max > span, .sensor_panel .sensor_humidity .sensor_set > span, .sensor_panel .sensor_temperature .sensor_min > span, .sensor_panel .sensor_temperature .sensor_max > span, .sensor_panel .sensor_temperature .sensor_set > span {
+      font-size: 13pt;
+      position: absolute;
+      top: 5px;
+      left: 13px; }
+    .sensor_panel .sensor_humidity .sensor_min, .sensor_panel .sensor_humidity .sensor_max, .sensor_panel .sensor_temperature .sensor_min, .sensor_panel .sensor_temperature .sensor_max {
+      color: #000000; }
+  .sensor_panel .sensor_humidity > div img {
+    left: 0px; }
+  .sensor_panel .sensor_temperature > div img {
+    left: -6px; }
 
 /*# sourceMappingURL=Dashboard.css.map */

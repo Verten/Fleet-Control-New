@@ -4,6 +4,7 @@
 
 import alt from '../alt';
 import xhr from '../Util/xhr';
+import history from 'history';
 
 class AppInfoAction {
 
@@ -23,6 +24,10 @@ class AppInfoAction {
             throw error;
         });
         return promise;
+    }
+
+    replaceRoute(route) {
+        history.replaceState(null, route);
     }
 }
 

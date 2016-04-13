@@ -2,5 +2,17 @@
   list-style-type: none; }
   #app .main_page ul li {
     margin-top: -80px; }
+  #app .main_page ul .button_back {
+    z-index: auto;
+    background-color: white;
+    float: right;
+    position: relative;
+    top: -10px;
+    padding: 10px 38px;
+    color: #222222;
+    text-transform: uppercase;
+    font-weight: bold;
+    margin-right: 26px;
+    border: solid 1px #ffffff; }
 
 /*# sourceMappingURL=Navigation.css.map */

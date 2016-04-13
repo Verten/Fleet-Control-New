@@ -3,22 +3,24 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import FaSpinner from "react-icons/fa/spinner";
+import {
+    default as canUseDOM,
+} from "can-use-dom";
 import ReactSlider from 'react-slider';
-import { GoogleMapLoader,GoogleMap, Marker, DirectionsRenderer,Polyline } from "react-google-maps";
+import { GoogleMapLoader,GoogleMap, Marker, DirectionsRenderer,InfoWindow,Circle  } from "react-google-maps";
 import ScriptjsLoader from "react-google-maps/lib/async/ScriptjsLoader";
 import Table from '../../Table/Table';
 import AppInfoStore from '../../../Store/AppInfoStore';
+import AppInfoAction from '../../../Action/AppInfoAction';
 import FleetDataInfoAction from '../../../Action/FleetDataInfoAction';
 import FleetDataInfoStore from '../../../Store/FleetDataInfoStore';
 import GeoLocationInfoAction from '../../../Action/GeoLocationInfoAction';
 import GeoLocationInfoStore from '../../../Store/GeoLocationInfoStore';
 import SensorInfoAction from '../../../Action/SensorInfoAction';
+import TripInfoAction from '../../../Action/TripInfoAction';
 import SensorInfoStore from '../../../Store/SensorInfoStore';
 import RouteInfoAction from '../../../Action/RouteInfoAction';
 import RouteInfoStore from '../../../Store/RouteInfoStore';
-//import VehicleTypeInfoStore from '../../../Store/VehicleTypeInfoStore';
-//import VehicleTypeInfoAction from '../../../Action/VehicleTypeInfoAction';
 
 import Page from '../Page';
 import Panel from '../../Panel/Panel';
@@ -26,6 +28,14 @@ import moment from 'moment';
 import './CreatePage.scss';
 
 import connectToStores from 'alt-utils/lib/connectToStores';
+
+const geolocation = (
+    canUseDOM && navigator.geolocation || {
+        getCurrentPosition: (success, failure) => {
+            failure(`Your browser doesn't support geolocation.`);
+        },
+    }
+);
 
 @connectToStores
 export default class CreatePage extends React.Component {
@@ -70,6 +80,7 @@ export default class CreatePage extends React.Component {
     constructor() {
         super();
         this.state = {
+            circle: [],
             markers: [],//position: {
             //    lat: 25.0112183,
             //    lng: 121.52067570000001,
@@ -83,11 +94,12 @@ export default class CreatePage extends React.Component {
             directions: null,
             plannedStartTime: null,
             plannedArriveTime: null,
-            cargo: "apple",
+            cargo: "Apple",
             quantity: null,
+            driver:null,
             vehicletype: {},
             vehicletypeId: null,
-            uom: null,
+            uom: "L",
             routeId: null,
             startPoint_address: null,
             startPoint_address_lat: null,
@@ -95,24 +107,39 @@ export default class CreatePage extends React.Component {
             destination_address: null,
             destination_address_lat: null,
             destination_address_lng: null,
-            sensor_temperature_id: null,
-            sensor_temperature_min: 2,
-            sensor_temperature_set: 15,
+            sensor_temperature_id: null,//also mapping to Pressure
+            sensor_temperature_min: 0,
+            sensor_temperature_set: 12,
             sensor_temperature_max: 30,
-            sensor_humidity_id: null,
-            sensor_humidity_min: 5,
-            sensor_humidity_set: 20,
-            sensor_humidity_max: 50
+            sensor_temperature_uom: '°',
+            sensor_temperature_title: 'Temperature',
+            sensor_humidity_id: null, // also mapping to Electrostatic
+            sensor_humidity_min: 50,
+            sensor_humidity_set: 70,
+            sensor_humidity_max: 100,
+            sensor_humidity_uom: '%',
+            sensor_humidity_title: 'Humidity'
         }
     }
 
 
     componentDidMount() {
+        geolocation.getCurrentPosition((position) => {
+            this.setState({
+                origin: new google.maps.LatLng(position.coords.latitude, position.coords.longitude),
+                content: `Location found using HTML5.`
+            });
+            const tick = () => {
+                this.setState({ radius: Math.max(this.state.radius - 20, 0) });
+            };
+        }, (reason) => {
+            this.setState({
+                content: `Error: The Geolocation service failed (${ reason }).`
+            });
+        });
+
+
         console.log('Created "create page"');
-        //get fleet data info
-        //TODO
-        //for remote http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/hwapGetFleetDataService
-        //./Asset/data/FleetDataInfo.json
         FleetDataInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/hwapGetFleetDataService')
             .then((response) => {
                 console.log("load hwapGetFleetDataService successfully");
@@ -126,8 +153,10 @@ export default class CreatePage extends React.Component {
                                 "lng": fleetData[index].currentInformation.long
                             },
                             "key": fleetData[index].vehicle.id,
-                            "content": fleetData[index].vehicle.vin,
-                            defaultAnimation: 1
+                            "content": fleetData[index].vehicle.registration,
+                            "vincontent": fleetData[index].vehicle.vin,
+                            defaultAnimation: 1,
+                            showInfo: true
                         }
                         markers.push(
                             marker
@@ -141,30 +170,25 @@ export default class CreatePage extends React.Component {
             }).catch((error) => {
             console.log(error);
         });
+    }
 
-        //for remote http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleType
-        //VehicleTypeInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleType').then((response) => {
-        //    console.log("successfully load vehicle type");
-        //    let options = [];
-        //    for (let index in this.props.vehicleType) {
-        //        options.push({
-        //            name: this.props.vehicleType[index].category,
-        //            value: this.props.vehicleType[index].id
-        //        });
-        //    }
-        //    this.setState({
-        //        vehicletype: options
-        //    });
-        //}).catch((error) => {
-        //    console.log(error);
-        //});
+    showTips(){
+        let items = [];
+        if(!this.state.draw){
+            items.push(
+                <div key="tips" className="show_tips">
+                    <h3>Select a truck by clicking position indicator on the map</h3>
+                </div>
+            );
+        }
+        return items;
     }
 
     initVehiclePanel(vehicle) {
         let items = [];
         let page;
         console.log("init vehicle panel");
-        if (vehicle && this.state.draw) {
+        if (this.state.driver && this.state.draw) {
             let fleetData = this.props.fleet_data;
             for (let index in fleetData) {
                 if (fleetData[index].vehicle.id == vehicle) {
@@ -197,13 +221,13 @@ export default class CreatePage extends React.Component {
         let items = [];
         let page;
         console.log("init driver panel");
-        if (driver && this.state.draw) {
+        if (this.state.driver && this.state.draw) {
             let fleetData = this.props.fleet_data;
             for (let index in fleetData) {
                 if (fleetData[index].vehicle.id == driver) {
                     items.push({
                         "label": "Name",
-                        "value": fleetData[index].vehicle.driver.firstName + fleetData[index].vehicle.driver.middleName + fleetData[index].vehicle.driver.lastName,
+                        "value": fleetData[index].vehicle.driver.firstName + " " + fleetData[index].vehicle.driver.lastName,
                         "type": "drivername",
                         "editable": false
                     });
@@ -241,12 +265,6 @@ export default class CreatePage extends React.Component {
             "type": "quantity",
             "editable": true
         });
-        /*items.push({
-            "label": "Type",
-            "value": "",
-            "type": "vehicletype",
-            "editable": true
-        });*/
         return items;
     }
 
@@ -287,15 +305,15 @@ export default class CreatePage extends React.Component {
 
     initTemperaturePanel() {
         let item = [];
-        if (this.state.draw) {
+        if (this.state.sensor_temperature_id && this.state.draw) {
             item.push(
-                <Panel key="key" title="Temperature (Celsius)" data={[]}>
-                    <ReactSlider onChange={this.onTemperatureChange.bind(this)} defaultValue={[0, 50, 100]}
+                <Panel key="key" title={this.state.sensor_temperature_title + " (Celsius)"} data={[]}>
+                    <ReactSlider onChange={this.onTemperatureChange.bind(this)} step={0.5} min={0} max={30} defaultValue={[0, 12, 30]}
                                  value={[this.state.sensor_temperature_min,this.state.sensor_temperature_set,this.state.sensor_temperature_max]}
                                  withBars>
-                        <div className="my-handle1">{this.state.sensor_temperature_min + '°'}</div>
-                        <div className="my-handle1">{this.state.sensor_temperature_set + '°'}</div>
-                        <div className="my-handle1">{this.state.sensor_temperature_max + '°'}</div>
+                        <div className="my-handle1">{this.state.sensor_temperature_min + this.state.sensor_temperature_uom}</div>
+                        <div className="my-handle1">{this.state.sensor_temperature_set + this.state.sensor_temperature_uom}</div>
+                        <div className="my-handle1">{this.state.sensor_temperature_max + this.state.sensor_temperature_uom}</div>
                     </ReactSlider>
                 </Panel>
             );
@@ -305,15 +323,15 @@ export default class CreatePage extends React.Component {
 
     initHumidityPanel() {
         let item = [];
-        if (this.state.draw) {
+        if (this.state.sensor_humidity_id && this.state.draw) {
             item.push(
-                <Panel key="key" title="Humidity (Relative)" data={[]}>
-                    <ReactSlider onChange={this.onHumidityChange.bind(this)} defaultValue={[0, 50, 100]}
+                <Panel key="key" title={this.state.sensor_humidity_title + " (Relative)"} data={[]}>
+                    <ReactSlider onChange={this.onHumidityChange.bind(this)} min={50} max={100} defaultValue={[50, 70, 100]}
                                  value={[this.state.sensor_humidity_min,this.state.sensor_humidity_set,this.state.sensor_humidity_max]}
                                  withBars>
-                        <div className="my-handle2">{this.state.sensor_humidity_min}%</div>
-                        <div className="my-handle2">{this.state.sensor_humidity_set}%</div>
-                        <div className="my-handle2">{this.state.sensor_humidity_max}%</div>
+                        <div className="my-handle2">{this.state.sensor_humidity_min + this.state.sensor_humidity_uom}</div>
+                        <div className="my-handle2">{this.state.sensor_humidity_set + this.state.sensor_humidity_uom}</div>
+                        <div className="my-handle2">{this.state.sensor_humidity_max + this.state.sensor_humidity_uom}</div>
                     </ReactSlider>
                 </Panel>
             );
@@ -397,8 +415,8 @@ export default class CreatePage extends React.Component {
 
     handleDate = (type, newDate) => {//newDate is a moment object
         console.log("newDate ", newDate);
-        console.log("type " + type);
-        let date = newDate.format("YYYY-MM-DD HH:mm:ss");
+        let date = newDate.format("YYYY-MM-DD HH:mm:ss ZZ");
+        console.log("type " + type + " " + date);
         if (type == "plannedStartTime") {
             this.setState({
                 plannedStartTime: date
@@ -443,30 +461,106 @@ export default class CreatePage extends React.Component {
 
     handleMarkerClick(marker) {
         console.log(marker.key);
+        marker.showInfo = true;
         //TODO
         // for remote http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleById/
         SensorInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleById/' + marker.key).then((response) => {
             console.log("get vehicle by id successfully");
-            let sensors = this.props.sensor.category.sensorType;//list
-            for(let index in sensors){
-                if(sensors[index].sensorType == "temperature"){
-                    this.setState({
-                        sensor_temperature_id : sensors[index].id
-                    });
-                }else if(sensors[index].sensorType == "humidity"){
-                    this.setState({
-                        sensor_humidity_id : sensors[index].id
-                    });
+            if(this.props.sensor){
+                let sensors = this.props.sensor.category.sensorType;//list
+                console.log(sensors);
+                for(let index in sensors){
+                    if(sensors[index].sensorType == "Temperature" || sensors[index].sensorType == "Pressure"){
+                        if(sensors[index].sensorType == "Pressure"){
+                            this.setState({
+                                sensor_temperature_id : sensors[index].id,
+                                sensor_temperature_title: "Pressure",
+                                sensor_temperature_uom: "Pa"
+                            });
+                        }else{
+                            this.setState({
+                                sensor_temperature_id : sensors[index].id
+                            });
+                        }
+                    }else if(sensors[index].sensorType == "Humidity" || sensors[index].sensorType == "Electrostatic"){
+                        if(sensors[index].sensorType == "Electrostatic"){
+                            this.setState({
+                                sensor_humidity_id : sensors[index].id,
+                                sensor_humidity_title: "Electrostatic",
+                                sensor_humidity_uom: "Kv"
+                            });
+                        }else{
+                            this.setState({
+                                sensor_humidity_id : sensors[index].id
+                            });
+                        }
+                    }
                 }
+                let vehicleDriver = this.props.sensor.driver;
+                this.setState({
+                    driver:vehicleDriver
+                });
             }
         }).catch((error) => {
             console.log(error);
         });
         this.setState({
             vehicleID: marker.key,
-            vehicleVin: marker.content,
+            vehicleVin: marker.vincontent,
             draw: true
         });
+    }
+
+    handleCloseclick(marker) {
+        marker.showInfo = false;
+        this.setState(this.state);
+    }
+
+    renderInfoWindow(ref, marker) {
+        return (
+            <InfoWindow key={`${ref}_info_window`}
+                        onCloseclick={this.handleCloseclick.bind(this, marker)}>
+                <div>
+                    <strong>{marker.content}</strong>
+                    <br />
+                </div>
+            </InfoWindow>
+        );
+    }
+
+    initMapCircle(){
+        let circle = [];
+        if(this.state.startPoint_address_lat && this.state.startPoint_address_lng){
+            circle.push(
+                <Circle key="circle_start" center={{
+                lat: this.state.startPoint_address_lat,
+                lng: this.state.startPoint_address_lng
+                }} radius={500} options={{
+                      fillColor: `red`,
+                      fillOpacity: 0,
+                      strokeColor: `red`,
+                      strokeOpacity: 1,
+                      strokeWeight: 1,
+                    }}
+                />
+            );
+        }
+        if(this.state.destination_address_lat && this.state.destination_address_lng){
+            circle.push(
+                <Circle key="circle_end" center={{
+                lat: this.state.destination_address_lat,
+                lng: this.state.destination_address_lng
+                }} radius={500} options={{
+                      fillColor: `red`,
+                      fillOpacity: 0,
+                      strokeColor: `red`,
+                      strokeOpacity: 1,
+                      strokeWeight: 1,
+                    }}
+                />
+            );
+        }
+        return circle;
     }
 
     getDistance(p1, p2) {
@@ -495,7 +589,9 @@ export default class CreatePage extends React.Component {
         let postJSON = {
             "routeName" :this.state.startPoint_address + "-" + this.state.destination_address,
             "description" : this.state.startPoint_address + "-" + this.state.destination_address,
-            "pointInfo" : resultRoute
+            "pointInfo" : resultRoute,
+            //"estimatedStartTime":this.state.plannedStartTime,
+            //"estimatedArriveTime":this.state.plannedArriveTime
         }
 
         //TODO
@@ -508,9 +604,11 @@ export default class CreatePage extends React.Component {
             });
             //fleetId enterpriseId,userRole
             create_trip = {
+                "userId": this.props.app_info.userId,
                 "fleetId": this.props.app_info.fleetId,
                 "enterpriseId": this.props.app_info.enterpriseId,
                 "role": this.props.app_info.userRole,
+                "customer": this.state.customer,
                 "vehicleId": this.state.vehicleID,
                 "route": {
                     "startPointAddress": this.state.startPoint_address,
@@ -518,25 +616,25 @@ export default class CreatePage extends React.Component {
                     "startPointLongitude": this.state.startPoint_address_lng,
                     "destinationAddress": this.state.destination_address,
                     "destinationLatitude": this.state.destination_address_lat,
-                    "destinationLongitude": this.state.destination_address_lng,
-                    "id": this.state.routeId
+                    "destinationLongitude": this.state.destination_address_lng
                 },
-                "cargoType": this.props.sensor.category.category,
+                "cargoType": this.props.sensor.category.id,
                 "cargoName": this.state.cargo,
                 "quantity": this.state.quantity,
                 "uom": this.state.uom,
                 "plannedStartTime": this.state.plannedStartTime,
                 "plannedArriveTime": this.state.plannedArriveTime,
-                "sensor" : [
+                "routeId": this.state.routeId,
+                "sensors" : [
                     {
-                        "type" : this.state.sensor_temperature_id,
+                        "sensorTypeId" : this.state.sensor_temperature_id,
                         "minThreshold" : this.state.sensor_temperature_min,
                         "maxThreshold" : this.state.sensor_temperature_max,
                         "standardValue" : this.state.sensor_temperature_set
 
                     },
                     {
-                        "type" : this.state.sensor_humidity_id,
+                        "sensorTypeId" : this.state.sensor_humidity_id,
                         "minThreshold" : this.state.sensor_humidity_min,
                         "maxThreshold" : this.state.sensor_humidity_max,
                         "standardValue" : this.state.sensor_humidity_set
@@ -545,14 +643,22 @@ export default class CreatePage extends React.Component {
 
             };
             console.log(create_trip);
-        }).catch((error) => {
+            TripInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/hwapCreateTripPlanning?body=' + encodeURIComponent(JSON.stringify(create_trip))).then((response) => {
+                console.log("create trip succrssfully!");
+                //AppInfoAction.replaceRoute(null, "/");
+                window.location.href="./fleetcontrol";
+            }).catch((error) => {
 
+            });
+        }).catch((error) => {
+            alert(error);
         });
     }
 
     render() {
         console.log(this.state);
         let empty = [];
+        let show_tips = this.showTips();
         let vehicle_panel_content = this.initVehiclePanel(this.state.vehicleID);
         let driver_panel_content = this.initDriverPanel(this.state.vehicleID);
         let pickup_panel_content = this.initPickUpPanel();
@@ -562,6 +668,7 @@ export default class CreatePage extends React.Component {
         let humidity_content = this.initHumidityPanel();
         let submit_panel_content = this.initSubmitPanel();
         let directions = this.state.directions;
+        let circle_marker = this.initMapCircle();
         return (
             <Page>
                 <Panel title="Create Assignment" data={empty}>
@@ -584,20 +691,6 @@ export default class CreatePage extends React.Component {
                     </div>
                 </Panel>
                 <GoogleMapLoader
-                    loadingElement={
-                        <div style={{
-                              height: `100%`
-                            }}>
-                          <FaSpinner  style={{
-                                                display: `block`,
-                                                width: 100,
-                                                height: 100,
-                                                margin: `60px auto`,
-                                                animation: `fa-spin 2s infinite linear`
-                                            }}
-                          />
-                        </div>
-                    }
                     containerElement={
                         <div className="map_panel" style={{ margin: `15px auto`}}></div>
                     }
@@ -607,19 +700,24 @@ export default class CreatePage extends React.Component {
                           defaultCenter={this.state.origin? this.state.origin : this.props.origin}
                           center={this.state.origin? this.state.origin : this.props.origin}
                         >
+                        {circle_marker}
                         {directions ? <DirectionsRenderer directions={directions} /> : null}
                         {this.state.markers.map((marker, index) => {
+                          const ref = `marker_${index}`;
                           return (
                             <Marker
                               {...marker}
                               onClick={this.handleMarkerClick.bind(this, marker)}
-                            />
+                            >
+                            {marker.showInfo ? this.renderInfoWindow(ref, marker) : null}
+                            </Marker>
                           );
                         })}
                         </GoogleMap>
                     }
                 />
                 <div className="detail_panel">
+                    {show_tips}
                     <div className="vehicle_driver">
                         <div className="vehicle_panel">
                             {vehicle_panel_content}

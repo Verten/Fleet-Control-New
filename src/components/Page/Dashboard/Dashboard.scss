@@ -2,10 +2,48 @@
   margin:8px 0px;
 }
 
+#app .main_page .page #myTable thead th:nth-child(6){
+  width: 160px;
+}
+
 .trip_detail_panel, .sensors_detail_panel, .vehicle_driver{
   display: flex;
   justify-content: center;
   align-items: flex-start;
+}
+.trip_detail_panel {
+  .addition_panel {
+    .info_panel {
+      .panel_content>div{
+        &:first-child {
+          &:after {
+            content: '';
+            width: 48px;
+            height: 48px;
+            position: absolute;
+            right: -15px;
+            top: -15px;
+            background-image: url("../../../Asset/images/icon_locationA-01.png");
+            background-position: center;
+            background-repeat: no-repeat;
+          }
+        }
+        &:last-child {
+          &:after {
+            content: '';
+            width: 48px;
+            height: 48px;
+            position: absolute;
+            right: -15px;
+            top: -15px;
+            background-image: url("../../../Asset/images/icon_locationB-01.png");
+            background-position: center;
+            background-repeat: no-repeat;
+          }
+        }
+      }
+    }
+  }
 }
 
 .vehicle_panel, .driver_panel{
@@ -23,7 +61,11 @@
 
 .panel_content{
   margin-left:24px;
+  & > div > div > span:last-child{
+    padding: 0px 0px 0px 8px;
+  }
   input{
+    margin-left: 4px;
     width: 170px;
     height: 25px;
     border: 1px solid rgb(1, 130, 186);
@@ -42,9 +84,10 @@
   padding: 0px 14px;
   min-height:131px;
   .panel_content{
-    margin-left:24px;
+    margin-left:0px;
     & > div{
       margin:8px 0px;
+      position: relative;
     }
   }
   .info_panel{
@@ -54,7 +97,20 @@
 .map_panel, .detail_panel, .event_panel{
   padding:14px;
 }
-
+.event_panel{
+  tr{
+    text-align: center;
+  }
+}
+.event_panel_image{
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+img.small_event_image {
+  width: 8%;
+  float: left;
+}
 .sensors_detail_panel{
   .info_panel{
     width:45%;
@@ -67,8 +123,9 @@
   height:250px;
 }
 .event_panel{
-  height:100px;
+  height: 160px;
   overflow: auto;
+  margin-top: 32px;
 }
 .panel_title{
   font-size: 1.25rem;
@@ -93,10 +150,12 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
+    position: relative;
   }
   .current_temperature, .current_humidity{
     font-size:2em;
-    display: inline-block;
+    //display: inline-block;
+    line-height: 40px;
   }
   .current_temperature{
     color:rgb(236, 121, 115);
@@ -104,15 +163,55 @@
   .current_humidity{
     color: rgb(159, 194, 108);
   }
+  .sensor_min_label, .sensor_set_label, .sensor_max_label{
+    color: #929292 !important;
+    font-size:10pt;
+    margin-left: 1px !important;
+    width: 40px !important;
+    height:auto !important;
+  }
+
   .sensor_humidity, .sensor_temperature{
     display: inline-block;
+    width:60%;
     & > div{
+      position: relative;
       display: inline-block;
       margin-left: 20px;
       width:40px;
       height:40px;
-      background-color: rgb(0, 175, 243);
       color: #ffffff;
+      background-color: transparent;
+      img{
+        position: absolute;
+        top: -5px;
+        width: 60px;
+      }
+    }
+    .sensor_min, .sensor_max, .sensor_set{
+      & > span{
+        font-size: 13pt;
+        position: absolute;
+        top: 5px;
+        left: 13px;
+      }
+    }
+    .sensor_min, .sensor_max{
+      color: #000000;
+    }
+  }
+  .sensor_humidity{
+    & > div{
+      img{
+        left: 0px;
+      }
+    }
+  }
+  .sensor_temperature{
+    & > div{
+      img{
+        left: -6px;
+      }
     }
   }
 }

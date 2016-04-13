@@ -29,6 +29,7 @@ class TripInfoStore extends BaseStore {
         for(let index in trips){
             if(trips[index].id == tripid){
                 trips[index].events = events;
+                break;
             }
         }
     }

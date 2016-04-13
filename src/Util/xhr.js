@@ -23,6 +23,7 @@ let xhr = {
 			var xhr = new XMLHttpRequest();
 			xhr.overrideMimeType('application/json');
 			xhr.open('POST', path, true);
+			xhr.setRequestHeader('Accept', 'application/json');
 			xhr.setRequestHeader('Content-type','application/json; charset=utf-8');
 			xhr.onload = () => {
 				// iOS needs returns 0 as status

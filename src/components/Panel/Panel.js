@@ -52,7 +52,7 @@ export default class Panel extends React.Component {
         let label_value = "";
         if(editable){
             if(content_type == "plannedStartTime" || content_type == "plannedArriveTime"){
-                label_value = <DateTimeField onChange={this.props.handleDate.bind(this,data.type)}/>;
+                label_value = <DateTimeField timeFormat="HH:mm:ss" onChange={this.props.handleDate.bind(this,data.type)}/>;
             }else{
                 label_value = <Input name={data.type} blurFunction={this.props.blurFunction.bind(this)}/>;
             }
@@ -66,12 +66,12 @@ export default class Panel extends React.Component {
                 "type": "uom",
                 "options": [
                     {
-                        "name": "Stere",
-                        "value": "stere"
+                        "name": "L",
+                        "value": "L"
                     },
                     {
-                        "name": "Ton",
-                        "value": "ton"
+                        "name": "KG",
+                        "value": "KG"
                     }
                 ]
             }
@@ -88,15 +88,15 @@ export default class Panel extends React.Component {
                 "options": [
                     {
                         "name": "Apple",
-                        "value": "apple"
+                        "value": "Apple"
                     },
                     {
                         "name": "Banana",
-                        "value": "banana"
+                        "value": "Banana"
                     },
                     {
                         "name": "Oil",
-                        "value": "oil"
+                        "value": "Oil"
                     }
                 ]
             }

@@ -23,7 +23,7 @@ export default class Navigation extends React.Component {
         //back link should be always put last
         links:[
             {
-                name: "Create",
+                name: "Assignment",
                 path:"/create/",
                 param:"fleetId"
             },
@@ -86,9 +86,10 @@ export default class Navigation extends React.Component {
     }
 
     render() {
+        let style = !this.props.linkChanged? "button_create":"button_back";
         return(
             <ul>
-                <li className="button_create">
+                <li className={style}>
                     {this.renderLinks()}
                 </li>
             </ul>

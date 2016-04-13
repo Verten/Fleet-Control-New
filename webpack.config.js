@@ -3,6 +3,11 @@ var webpack = require('webpack');
 var node_modules = path.resolve(__dirname, 'node_modules');
 //var pathToReact = path.resolve(node_modules, 'react/dist/react.js');
 
+var deps = [
+    'react/dist/react.js',
+    'moment/min/moment.min.js'
+];
+
 //独立打包样式文件
 var ExtractTextPlugin = require("extract-text-webpack-plugin");
 //拷贝文件
@@ -34,9 +39,9 @@ var config = {
     resolve: {
         //自动扩展文件后缀名，意味着我们require模块可以省略不写后缀名
         extensions: ['', '.js', '.json', '.scss'],
-        //alias: {
-        //    'react': pathToReact
-        //}
+        alias: {
+            //'react': pathToReact
+        }
     },
     output: {
         path: path.resolve(__dirname, 'build'),
@@ -53,10 +58,21 @@ var config = {
                 //.scss 文件使用 style-loader、css-loader 和 sass-loader 来编译处理, "-loader"其实是可以省略不写的，多个loader之间用“!”连接起来 'style!css!sass?sourceMap'
                 test: /\.scss$/,
                 loader: ExtractTextPlugin.extract(['css','sass'])
-            }
+            },
+            {
+                test: /\.css$/,
+                loader: "style!css"
+            },
+            { test: /\.(jpg|png|svg)/, loader: 'url?limit=8192' }
         ],
-        //noParse:[pathToReact]
+        noParse:[]
     }
 };
+
+deps.forEach(function (dep) {
+    var depPath = path.resolve(node_modules, dep);
+    config.resolve.alias[dep.split(path.sep)[0]] = depPath;
+    config.module.noParse.push(depPath);
+});
 
 module.exports = config;
