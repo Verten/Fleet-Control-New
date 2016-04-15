@@ -72,6 +72,7 @@ export default class IndexPage extends React.Component {
                 defaultAnimation: 1
             }
         ],
+        marker_image:'../../images/truck_icon.png',
         origin: new google.maps.LatLng(23.1312183, 113.27067570000001),
         destination: new google.maps.LatLng(23.1312983, 113.23067570006001)
     }
@@ -285,6 +286,7 @@ export default class IndexPage extends React.Component {
                                 lng: trip_lng
                             },
                             key: `current`,
+                            icon: this.props.marker_image,
                             defaultAnimation: 1
                         };
                         this.setState({

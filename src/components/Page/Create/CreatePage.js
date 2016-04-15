@@ -18,6 +18,7 @@ import GeoLocationInfoAction from '../../../Action/GeoLocationInfoAction';
 import GeoLocationInfoStore from '../../../Store/GeoLocationInfoStore';
 import SensorInfoAction from '../../../Action/SensorInfoAction';
 import TripInfoAction from '../../../Action/TripInfoAction';
+import TripInfoStore from '../../../Store/TripInfoStore';
 import SensorInfoStore from '../../../Store/SensorInfoStore';
 import RouteInfoAction from '../../../Action/RouteInfoAction';
 import RouteInfoStore from '../../../Store/RouteInfoStore';
@@ -42,7 +43,7 @@ export default class CreatePage extends React.Component {
 
     static getStores() {
         // this will handle the listening/unlistening for you
-        return [AppInfoStore, GeoLocationInfoStore, FleetDataInfoStore, SensorInfoStore];
+        return [AppInfoStore, GeoLocationInfoStore, FleetDataInfoStore, SensorInfoStore,TripInfoStore];
     }
 
     static getPropsFromStores() {
@@ -53,12 +54,15 @@ export default class CreatePage extends React.Component {
         let geoLocationStatus = GeoLocationInfoStore.getState().status;
         let geoLocationResult = GeoLocationInfoStore.getState().results;
         let sensor = SensorInfoStore.getState().body;
+        let trip_info = TripInfoStore.getState().body;
+
         return {
             app_info: app_info,
             geoLocationStatus: geoLocationStatus,
             geoLocationResult: geoLocationResult,
             fleet_data: fleet_data,
-            sensor: sensor
+            sensor: sensor,
+            trip_info: trip_info
         }
     }
 
@@ -73,6 +77,8 @@ export default class CreatePage extends React.Component {
     }
 
     static defaultProps = {
+        marker_image:'../../images/truck_icon.png',
+
         origin: new google.maps.LatLng(23.1312183, 113.27067570000001),
         destination: new google.maps.LatLng(23.1312983, 113.23067570006001)
     }
@@ -99,7 +105,7 @@ export default class CreatePage extends React.Component {
             driver:null,
             vehicletype: {},
             vehicletypeId: null,
-            uom: "L",
+            uom: "KG",
             routeId: null,
             startPoint_address: null,
             startPoint_address_lat: null,
@@ -148,15 +154,16 @@ export default class CreatePage extends React.Component {
                 for (let index in fleetData) {
                     if (fleetData[index].currentInformation.lat && fleetData[index].currentInformation.long) {
                         let marker = {
-                            "position": {
+                            position: {
                                 "lat": fleetData[index].currentInformation.lat,
                                 "lng": fleetData[index].currentInformation.long
                             },
-                            "key": fleetData[index].vehicle.id,
-                            "content": fleetData[index].vehicle.registration,
-                            "vincontent": fleetData[index].vehicle.vin,
+                            icon: this.props.marker_image,
+                            vehicleid: fleetData[index].vehicle.id,
+                            vehicleregistration: fleetData[index].vehicle.registration,
+                            vehiclevin: fleetData[index].vehicle.vin,
                             defaultAnimation: 1,
-                            showInfo: true
+                            showvehicleInfo: true
                         }
                         markers.push(
                             marker
@@ -445,12 +452,17 @@ export default class CreatePage extends React.Component {
         });
     }
 
-    onChangeSelect(event) {
+    onChangeSelect(event,object) {
         //event.target.id
         console.log(event.target.value);//done
         if ("cargo" == event.target.id) {
+            let uom = "L";
+            if(event.target.value == "Apple" || event.target.value == "Banana"){
+                uom = "KG";
+            }
             this.setState({
-                cargo: event.target.value
+                cargo: event.target.value,
+                uom: uom
             });
         }else if("uom" == event.target.id){
             this.setState({
@@ -460,11 +472,11 @@ export default class CreatePage extends React.Component {
     }
 
     handleMarkerClick(marker) {
-        console.log(marker.key);
-        marker.showInfo = true;
+        console.log(marker.vehicleid);
+        marker.showvehicleInfo = true;
         //TODO
         // for remote http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleById/
-        SensorInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleById/' + marker.key).then((response) => {
+        SensorInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/getVehicleById/' + marker.vehicleid).then((response) => {
             console.log("get vehicle by id successfully");
             if(this.props.sensor){
                 let sensors = this.props.sensor.category.sensorType;//list
@@ -505,14 +517,14 @@ export default class CreatePage extends React.Component {
             console.log(error);
         });
         this.setState({
-            vehicleID: marker.key,
-            vehicleVin: marker.vincontent,
+            vehicleID: marker.vehicleid,
+            vehicleVin: marker.vehiclevin,
             draw: true
         });
     }
 
     handleCloseclick(marker) {
-        marker.showInfo = false;
+        marker.showvehicleInfo = false;
         this.setState(this.state);
     }
 
@@ -521,7 +533,7 @@ export default class CreatePage extends React.Component {
             <InfoWindow key={`${ref}_info_window`}
                         onCloseclick={this.handleCloseclick.bind(this, marker)}>
                 <div>
-                    <strong>{marker.content}</strong>
+                    <strong>{marker.vehicleregistration}</strong>
                     <br />
                 </div>
             </InfoWindow>
@@ -590,8 +602,8 @@ export default class CreatePage extends React.Component {
             "routeName" :this.state.startPoint_address + "-" + this.state.destination_address,
             "description" : this.state.startPoint_address + "-" + this.state.destination_address,
             "pointInfo" : resultRoute,
-            //"estimatedStartTime":this.state.plannedStartTime,
-            //"estimatedArriveTime":this.state.plannedArriveTime
+            "estimatedStartTime":this.state.plannedStartTime,
+            "estimatedArriveTime":this.state.plannedArriveTime
         }
 
         //TODO
@@ -646,9 +658,23 @@ export default class CreatePage extends React.Component {
             TripInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/hwapCreateTripPlanning?body=' + encodeURIComponent(JSON.stringify(create_trip))).then((response) => {
                 console.log("create trip succrssfully!");
                 //AppInfoAction.replaceRoute(null, "/");
-                window.location.href="./fleetcontrol";
+                console.log("update route information");
+                let new_trip = this.props.trip_info;
+                let trip_id = new_trip.id;
+                let update_JSON = {
+                    "routeId": this.state.routeId,
+                    "tripplanid": trip_id
+                }
+                RouteInfoAction.postData("http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/simulator/telematics/" + this.state.vehicleVin + "/updateRoute?routeid="+ this.state.routeId +"&tripplanid=" + trip_id, null)
+                .then((response) => {
+                    console.log("update route information successfully!");
+                    window.location.href="./fleetcontrol";
+                }).catch((error) => {
+                    console.error(error);
+                    alert(error);
+                });
             }).catch((error) => {
-
+                alert(error);
             });
         }).catch((error) => {
             alert(error);
@@ -674,7 +700,7 @@ export default class CreatePage extends React.Component {
                 <Panel title="Create Assignment" data={empty}>
                     <div className="trip_detail_panel">
                         <div className="pickup_panel">
-                            <Panel title="" data={pickup_panel_content}
+                            <Panel title="" data={pickup_panel_content} cargo={this.state.cargo}
                                    handleDate={this.handleDate.bind(this)}
                                    blurFunction={this.blurFunction.bind(this)}
                                    onChangeSelect={this.onChangeSelect.bind(this)}>
@@ -709,7 +735,7 @@ export default class CreatePage extends React.Component {
                               {...marker}
                               onClick={this.handleMarkerClick.bind(this, marker)}
                             >
-                            {marker.showInfo ? this.renderInfoWindow(ref, marker) : null}
+                            {marker.showvehicleInfo ? this.renderInfoWindow(ref, marker) : null}
                             </Marker>
                           );
                         })}

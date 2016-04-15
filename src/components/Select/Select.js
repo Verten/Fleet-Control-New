@@ -47,7 +47,7 @@ export default class Select extends React.Component {
     render() {
         return(
             <div style={{"display":"inline-block"}}>
-                <select id={this.props.data.type} name={this.props.data.type} onChange={this.props.onChangeSelect.bind(this)}>
+                <select id={this.props.data.type} value={this.props.value} name={this.props.data.type} onChange={this.props.onChangeSelect.bind(this)}>
                     {this.renderOption(this.props.data.options)}
                 </select>
             </div>

@@ -62,6 +62,10 @@ export default class Panel extends React.Component {
 
         if("quantity" == content_type && editable){
             let label_value_1 = <Input name={data.type} blurFunction={this.props.blurFunction.bind(this)}/>;
+            let value = "Oil";
+            if(this.props.cargo == "Apple" || this.props.cargo == "Banana"){
+                value = "KG";
+            }
             let uom = {
                 "type": "uom",
                 "options": [
@@ -75,7 +79,7 @@ export default class Panel extends React.Component {
                     }
                 ]
             }
-            let label_value_2 = <Select data={uom} onChangeSelect={this.props.onChangeSelect.bind(this)}/>
+            let label_value_2 = <Select data={uom} value={value} onChangeSelect={this.props.onChangeSelect.bind(this)}/>
 
             label_value = <div className="quantity_div" style={{"display":"inline-block"}}>
                 {label_value_1}

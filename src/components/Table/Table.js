@@ -109,9 +109,9 @@ export default class Table extends React.Component {
                 let event_icon = <label></label>;
                 if(index =="event" && data.event){
                     content = data.event[0].message;
-                    if(data.event[0].type == "normal"){
-                        event_icon = <img src=""/>
-                    }else if(data.event[0].type == "warning"){
+                    if(data.event[0].type.toLowerCase() == "info"){
+                        event_icon = <img className="small_event_image" src="../../images/icon_info-01.svg" alt="info"/>;
+                    }else if(data.event[0].type.toLowerCase() == "warning"){
                         event_icon = <img className="small_event_image" src="../../images/icon_warning-01.svg" alt="warning"/>
                     }
                     data_Line.push(
