@@ -133,7 +133,7 @@ export default class App extends React.Component{
                 param: this.state.fleetId ? this.state.fleetId : "no fleet Id"
             },
             {
-                name: "Back",
+                name: "Cancel",
                 path:"/",
                 param: ""
             }

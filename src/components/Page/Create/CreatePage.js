@@ -79,7 +79,7 @@ export default class CreatePage extends React.Component {
     static defaultProps = {
         marker_image:'../../images/truck_icon.png',
 
-        origin: new google.maps.LatLng(23.1312183, 113.27067570000001),
+        origin: new google.maps.LatLng(39.9860987, 116.4698704),
         destination: new google.maps.LatLng(23.1312983, 113.23067570006001)
     }
 
@@ -162,7 +162,7 @@ export default class CreatePage extends React.Component {
                             vehicleid: fleetData[index].vehicle.id,
                             vehicleregistration: fleetData[index].vehicle.registration,
                             vehiclevin: fleetData[index].vehicle.vin,
-                            defaultAnimation: 1,
+                            defaultAnimation: 2,
                             showvehicleInfo: true
                         }
                         markers.push(
@@ -348,9 +348,14 @@ export default class CreatePage extends React.Component {
 
     initSubmitPanel(){
         let item = [];
-        if (this.state.draw) {
+        if (this.state.customer && this.state.quantity && this.state.plannedStartTime && this.state.plannedArriveTime
+            && this.state.startPoint_address && this.state.destination_address) {
             item.push(
                 <button key="submit" className="button_create" onClick={this.summaryPostJSON.bind(this)}>Create</button>
+            );
+        }else{
+            item.push(
+                <button key="submit" disabled="disabled" className="button_create button_disabled" onClick={this.summaryPostJSON.bind(this)}>Create</button>
             );
         }
         return item;
