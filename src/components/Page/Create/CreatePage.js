@@ -78,7 +78,7 @@ export default class CreatePage extends React.Component {
 
     static defaultProps = {
         marker_image:'../../images/truck_icon.png',
-
+        disconnected_marker_image: '../../images/disconnected_truck_icon.png',
         origin: new google.maps.LatLng(39.9860987, 116.4698704),
         destination: new google.maps.LatLng(23.1312983, 113.23067570006001)
     }
@@ -151,20 +151,26 @@ export default class CreatePage extends React.Component {
                 console.log("load hwapGetFleetDataService successfully");
                 let fleetData = this.props.fleet_data;
                 let markers = [];
+                let icon = this.props.marker_image;
                 for (let index in fleetData) {
                     if (fleetData[index].currentInformation.lat && fleetData[index].currentInformation.long) {
+                        if(fleetData[index].vehicle.status == 'disconnected'){
+                            icon = this.props.disconnected_marker_image;
+                        }
                         let marker = {
                             position: {
-                                "lat": fleetData[index].currentInformation.lat,
-                                "lng": fleetData[index].currentInformation.long
+                                "lat": parseFloat(fleetData[index].currentInformation.lat),
+                                "lng": parseFloat(fleetData[index].currentInformation.long)
                             },
-                            icon: this.props.marker_image,
+                            icon: icon,
                             vehicleid: fleetData[index].vehicle.id,
                             vehicleregistration: fleetData[index].vehicle.registration,
                             vehiclevin: fleetData[index].vehicle.vin,
                             defaultAnimation: 2,
-                            showvehicleInfo: true
-                        }
+                            showvehicleInfo: true,
+                            carstatus:fleetData[index].vehicle.status,
+                            connectivity:fleetData[index].vehicle.connectivity
+                        };
                         markers.push(
                             marker
                         );
@@ -540,6 +546,9 @@ export default class CreatePage extends React.Component {
                 <div>
                     <strong>{marker.vehicleregistration}</strong>
                     <br />
+                    <strong>{marker.carstatus}</strong>
+                    <br/>
+                    <strong>{marker.connectivity}</strong>
                 </div>
             </InfoWindow>
         );

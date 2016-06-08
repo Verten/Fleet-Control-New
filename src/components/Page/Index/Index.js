@@ -7,7 +7,7 @@ import {
 } from "can-use-dom";
 import Page from '../Page';
 import FaSpinner from "react-icons/fa/spinner";
-import { GoogleMapLoader,GoogleMap, Marker, DirectionsRenderer,Circle } from "react-google-maps";
+import { GoogleMapLoader,GoogleMap, Marker, DirectionsRenderer,Circle,InfoWindow } from "react-google-maps";
 import ScriptjsLoader from "react-google-maps/lib/async/ScriptjsLoader";
 import Table from '../../Table/Table';
 import AppInfoStore from '../../../Store/AppInfoStore';
@@ -73,6 +73,7 @@ export default class IndexPage extends React.Component {
             }
         ],
         marker_image:'../../images/truck_icon.png',
+        disconnected_marker_image: '../../images/disconnected_truck_icon.png',
         origin: new google.maps.LatLng(39.9860987, 116.4698704),
         destination: new google.maps.LatLng(23.1312983, 113.23067570006001)
     }
@@ -138,6 +139,39 @@ export default class IndexPage extends React.Component {
             FleetDataInfoAction.loadData('http://ec2-52-58-27-100.eu-central-1.compute.amazonaws.com/primary-rest/hwapGetFleetDataService')
                 .then((response) => {
                     console.log("load hwapGetFleetDataService successfully");
+                    //add by ebinhon for NB-IOT
+                    let fleetData = this.props.fleet_data;
+                    let markers = [];
+                    let icon = this.props.marker_image;
+                    for (let index in fleetData) {
+                        if (fleetData[index].currentInformation.lat && fleetData[index].currentInformation.long) {
+                            if(fleetData[index].vehicle.status == 'disconnected'){
+                                icon = this.props.disconnected_marker_image;
+                            }
+                            let marker = {
+                                position: {
+                                    "lat": parseFloat(fleetData[index].currentInformation.lat),
+                                    "lng": parseFloat(fleetData[index].currentInformation.long)
+                                },
+                                icon: icon,
+                                vehicleid: fleetData[index].vehicle.id,
+                                vehicleregistration: fleetData[index].vehicle.registration,
+                                vehiclevin: fleetData[index].vehicle.vin,
+                                defaultAnimation: 2,
+                                showvehicleInfo: true,
+                                carstatus:fleetData[index].vehicle.status,
+                                connectivity:fleetData[index].vehicle.connectivity
+                            };
+                            markers.push(
+                                marker
+                            );
+                        }
+                    }
+                    this.setState({
+                        markers: markers
+                    });
+                    console.log("done set up vehicle");
+                    //end
                 }).catch((error) => {
                 console.log(error);
             });
@@ -327,6 +361,26 @@ export default class IndexPage extends React.Component {
         }
     }
 
+    handleCloseclick(marker) {
+        marker.showvehicleInfo = false;
+        this.setState(this.state);
+    }
+
+    renderInfoWindow(ref, marker) {
+        return (
+            <InfoWindow key={`${ref}_info_window`}
+                        onCloseclick={this.handleCloseclick.bind(this, marker)}>
+                <div>
+                    <strong>{marker.vehicleregistration}</strong>
+                    <br />
+                    <strong>{marker.carstatus}</strong>
+                    <br/>
+                    <strong>{marker.connectivity}</strong>
+                </div>
+            </InfoWindow>
+        );
+    }
+
     render() {
         let trip_brife_info = this.renderData();
         const directions = this.state.directions;
@@ -356,16 +410,20 @@ export default class IndexPage extends React.Component {
                            })}
                            {directions ? <DirectionsRenderer directions={directions} /> : null}
                            {this.state.markers.map((marker, index) => {
+                              const ref = `marker_${index}`;
                               return (
                                 <Marker
                                   {...marker}
-                                />
+                                >
+                                {marker.showvehicleInfo ? this.renderInfoWindow(ref, marker) : null}
+                                </Marker>
                               );
                             })}
                         </GoogleMap>
                     }
                 />
-                <Table clickFunction={this.changeMap.bind(this)} changeLinkFunction={this.changeLink.bind(this)} header={this.props.headers} data={trip_brife_info}/>
+                <Table changeLinkFunction={this.changeLink.bind(this)} header={this.props.headers} data={trip_brife_info}/>
+                {/*clickFunction={this.changeMap.bind(this)}*/}
             </Page>
         );
     }
