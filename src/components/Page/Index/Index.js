@@ -142,11 +142,14 @@ export default class IndexPage extends React.Component {
                     //add by ebinhon for NB-IOT
                     let fleetData = this.props.fleet_data;
                     let markers = [];
-                    let icon = this.props.marker_image;
                     for (let index in fleetData) {
+                        let icon = this.props.marker_image;
+                        let connectivity = '';
                         if (fleetData[index].currentInformation.lat && fleetData[index].currentInformation.long) {
                             if(fleetData[index].vehicle.status == 'disconnected'){
                                 icon = this.props.disconnected_marker_image;
+                            }else{
+                                connectivity = ' by ' + fleetData[index].vehicle.connectivity;
                             }
                             let marker = {
                                 position: {
@@ -159,8 +162,8 @@ export default class IndexPage extends React.Component {
                                 vehiclevin: fleetData[index].vehicle.vin,
                                 defaultAnimation: 2,
                                 showvehicleInfo: true,
-                                carstatus:fleetData[index].vehicle.status,
-                                connectivity:fleetData[index].vehicle.connectivity
+                                carstatus:fleetData[index].vehicle.status.charAt(0).toUpperCase() + fleetData[index].vehicle.status.slice(1),
+                                connectivity:connectivity
                             };
                             markers.push(
                                 marker
@@ -294,6 +297,7 @@ export default class IndexPage extends React.Component {
 
     changeMap(tripId){
         console.log(tripId);
+        return false;
         let trip = TripInfoStore.findTripById(tripId);
 
         let startPoint_latitude = 23.1312183;
@@ -369,13 +373,11 @@ export default class IndexPage extends React.Component {
     renderInfoWindow(ref, marker) {
         return (
             <InfoWindow key={`${ref}_info_window`}
-                        onCloseclick={this.handleCloseclick.bind(this, marker)}>
+                        onCloseclick={this.handleCloseclick.bind(this,marker)}>
                 <div>
                     <strong>{marker.vehicleregistration}</strong>
                     <br />
-                    <strong>{marker.carstatus}</strong>
-                    <br/>
-                    <strong>{marker.connectivity}</strong>
+                    <strong>{marker.carstatus}{marker.connectivity}</strong>
                 </div>
             </InfoWindow>
         );
@@ -422,7 +424,7 @@ export default class IndexPage extends React.Component {
                         </GoogleMap>
                     }
                 />
-                <Table changeLinkFunction={this.changeLink.bind(this)} header={this.props.headers} data={trip_brife_info}/>
+                <Table clickFunction={this.changeMap.bind(this)} changeLinkFunction={this.changeLink.bind(this)} header={this.props.headers} data={trip_brife_info}/>
                 {/*clickFunction={this.changeMap.bind(this)}*/}
             </Page>
         );

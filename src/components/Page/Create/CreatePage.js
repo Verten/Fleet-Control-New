@@ -151,11 +151,14 @@ export default class CreatePage extends React.Component {
                 console.log("load hwapGetFleetDataService successfully");
                 let fleetData = this.props.fleet_data;
                 let markers = [];
-                let icon = this.props.marker_image;
                 for (let index in fleetData) {
+                    let icon = this.props.marker_image;
+                    let connectivity = '';
                     if (fleetData[index].currentInformation.lat && fleetData[index].currentInformation.long) {
                         if(fleetData[index].vehicle.status == 'disconnected'){
                             icon = this.props.disconnected_marker_image;
+                        }else{
+                            connectivity = ' by ' + fleetData[index].vehicle.connectivity;
                         }
                         let marker = {
                             position: {
@@ -168,8 +171,8 @@ export default class CreatePage extends React.Component {
                             vehiclevin: fleetData[index].vehicle.vin,
                             defaultAnimation: 2,
                             showvehicleInfo: true,
-                            carstatus:fleetData[index].vehicle.status,
-                            connectivity:fleetData[index].vehicle.connectivity
+                            carstatus:fleetData[index].vehicle.status.charAt(0).toUpperCase() + fleetData[index].vehicle.status.slice(1),
+                            connectivity:connectivity
                         };
                         markers.push(
                             marker
@@ -546,9 +549,7 @@ export default class CreatePage extends React.Component {
                 <div>
                     <strong>{marker.vehicleregistration}</strong>
                     <br />
-                    <strong>{marker.carstatus}</strong>
-                    <br/>
-                    <strong>{marker.connectivity}</strong>
+                    <strong>{marker.carstatus}{marker.connectivity}</strong>
                 </div>
             </InfoWindow>
         );
